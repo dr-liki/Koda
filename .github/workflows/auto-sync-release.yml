@@ -1,0 +1,94 @@
+name: Auto-Sync Upstream & Release
+
+on:
+  schedule:
+    # Checks every 6 hours for upstream updates
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force build and release even if version matches'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Fork
+        uses: actions/checkout@v4
+        with:
+          ref: feature/android-tv
+          fetch-depth: 0
+
+      - name: Configure Git Author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check for New Upstream Release
+        id: check_upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_RELEASE: ${{ inputs.force_release }}
+        run: |
+          UPSTREAM_TAG=$(gh api repos/Ivorisnoob/Koda/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
+          FORK_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
+
+          echo "Upstream latest: $UPSTREAM_TAG"
+          echo "Fork latest:     $FORK_TAG"
+
+          if [ "$FORCE_RELEASE" = "true" ]; then
+            echo "has_update=true" >> "$GITHUB_OUTPUT"
+            TAG_TO_USE="${UPSTREAM_TAG:-v5.3}-tv"
+            echo "version=$TAG_TO_USE" >> "$GITHUB_OUTPUT"
+          elif [ -n "$UPSTREAM_TAG" ] && [ "$UPSTREAM_TAG" != "$FORK_TAG" ]; then
+            echo "has_update=true" >> "$GITHUB_OUTPUT"
+            echo "version=$UPSTREAM_TAG" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_update=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge Upstream Changes
+        if: steps.check_upstream.outputs.has_update == 'true'
+        run: |
+          git remote add upstream https://github.com/Ivorisnoob/Koda.git || true
+          git fetch upstream beta
+          git merge upstream/beta --no-edit || (echo "Merge conflict detected! Please resolve manually." && exit 1)
+          git push origin feature/android-tv
+
+      - name: Set up JDK 21
+        if: steps.check_upstream.outputs.has_update == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '21'
+
+      - name: Set up Android SDK
+        if: steps.check_upstream.outputs.has_update == 'true'
+        uses: android-actions/setup-android@v3
+
+      - name: Grant Execute Permission for Gradlew
+        if: steps.check_upstream.outputs.has_update == 'true'
+        run: chmod +x gradlew
+
+      - name: Build APKs
+        if: steps.check_upstream.outputs.has_update == 'true'
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Publish GitHub Release
+        if: steps.check_upstream.outputs.has_update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.check_upstream.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            app/build/outputs/apk/debug/app-universal-debug.apk#Koda-Universal-TV-$VERSION.apk \
+            app/build/outputs/apk/debug/app-arm64-v8a-debug.apk#Koda-arm64-v8a-$VERSION.apk \
+            app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk#Koda-armeabi-v7a-$VERSION.apk \
+            --title "Koda $VERSION (with Android TV Support)" \
+            --notes "Automated release synchronized with upstream Koda $VERSION including native 10-foot Android TV support."
