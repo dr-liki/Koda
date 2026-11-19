@@ -168,8 +168,8 @@ kotlin {
 
 // Build info available via BuildConfig
 android.defaultConfig.apply {
-    buildConfigField("String", "GITHUB_REPO", "\"ivorisnoob/Koda\"")
-    buildConfigField("String", "GITHUB_USERNAME", "\"ivorisnoob\"")
+    buildConfigField("String", "GITHUB_REPO", "\"dr-liki/Koda\"")
+    buildConfigField("String", "GITHUB_USERNAME", "\"dr-liki\"")
 }
 
 dependencies {
@@ -183,6 +183,9 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.material3)
+    // Android TV Compose Foundation and Material 3
+    implementation(libs.androidx.tv.foundation)
+    implementation(libs.androidx.tv.material)
     // HCT scheme generation; UI remains Compose Material 3 Expressive.
     implementation(libs.material.color.utilities)
     implementation(libs.androidx.media3.exoplayer)

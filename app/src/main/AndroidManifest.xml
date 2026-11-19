@@ -26,6 +26,13 @@
     <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- Android TV Compatibility: non-touch and leanback flags -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
     <!-- Discord Rich Presence: package visibility for the Discord app's RPC service. -->
     <queries>
         <intent>
@@ -39,6 +46,7 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:banner="@drawable/tv_banner"
         android:icon="@mipmap/ic_launcher"
         android:label="${appLabel}"
         android:localeConfig="@xml/locales_config"
@@ -206,6 +214,23 @@
                 <action android:name="android.intent.action.MUSIC_PLAYER" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Dedicated Android TV Entry Point -->
+        <activity
+            android:name=".ui.tv.TvMainActivity"
+            android:exported="true"
+            android:banner="@drawable/tv_banner"
+            android:icon="@mipmap/ic_launcher"
+            android:label="${appLabel}"
+            android:logo="@drawable/tv_banner"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|navigation|smallestScreenSize"
+            android:theme="@style/Theme.App.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
