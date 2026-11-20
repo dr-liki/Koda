@@ -159,18 +159,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        if (com.ivor.ivormusic.util.TvUtils.isTvDevice(this)) {
-            val tvIntent = android.content.Intent(this, com.ivor.ivormusic.ui.tv.TvMainActivity::class.java).apply {
-                action = intent?.action
-                data = intent?.data
-                intent?.extras?.let { putExtras(it) }
-                flags = android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT
-            }
-            startActivity(tvIntent)
-            finish()
-            return
-        }
-
         // A fresh launch from the launcher opens in the mode the user chose in
         // Settings. Not on a recreation (rotation, theme change), and not for a
         // shortcut or a shared link, which say where they want to land.
@@ -213,6 +201,24 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val tvMode = com.ivor.ivormusic.ui.tv.rememberTvMode()
+            if (tvMode) {
+                val themeViewModel: ThemeViewModel = viewModel()
+                val homeViewModel: HomeViewModel = viewModel()
+                val playerViewModel: PlayerViewModel = viewModel {
+                    PlayerViewModel(applicationContext)
+                }
+                val videoPlayerViewModel: com.ivor.ivormusic.ui.video.VideoPlayerViewModel = viewModel()
+
+                com.ivor.ivormusic.ui.tv.TvNavigation(
+                    homeViewModel = homeViewModel,
+                    playerViewModel = playerViewModel,
+                    videoPlayerViewModel = videoPlayerViewModel,
+                    themeViewModel = themeViewModel
+                )
+                return@setContent
+            }
+
             val themeViewModel: ThemeViewModel = viewModel()
             val themeMode by themeViewModel.themeMode.collectAsState()
             val amoledTheme by themeViewModel.amoledTheme.collectAsState()

@@ -76,12 +76,19 @@
             android:exported="true"
             android:label="${appLabel}"
             android:launchMode="singleTask"
+            android:banner="@drawable/tv_banner"
+            android:logo="@drawable/tv_banner"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|navigation|smallestScreenSize"
             android:windowSoftInputMode="adjustResize"
             android:supportsPictureInPicture="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+            <!-- Android TV home screen leanback entry point -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
 
             <!--
@@ -217,22 +224,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Dedicated Android TV Entry Point -->
-        <activity
-            android:name=".ui.tv.TvMainActivity"
-            android:exported="true"
-            android:banner="@drawable/tv_banner"
-            android:icon="@mipmap/ic_launcher"
-            android:label="${appLabel}"
-            android:logo="@drawable/tv_banner"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|navigation|smallestScreenSize"
-            android:theme="@style/Theme.App.Starting">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <!-- Launcher activity aliases for dynamic app icon switching -->
         <activity-alias
