@@ -326,7 +326,7 @@ private fun TvMusicControlButton(
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     val background = when {
-        isFocused -> MaterialTheme.colorScheme.primary
+        isFocused -> Color.White
         isPrimary -> Color.White.copy(alpha = 0.2f)
         else -> Color.Transparent
     }
@@ -336,7 +336,7 @@ private fun TvMusicControlButton(
             .size(size)
             .clip(CircleShape)
             .background(background)
-            .tvFocusable(isFocused = isFocused, shape = CircleShape, focusedScale = 1.15f)
+            .tvFocusable(isFocused = isFocused, shape = CircleShape, focusedBorderColor = Color.White, focusedScale = 1.15f)
             .focusable(interactionSource = interactionSource)
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
@@ -344,7 +344,7 @@ private fun TvMusicControlButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (isFocused) Color.White else Color.White.copy(alpha = 0.85f),
+            tint = if (isFocused) Color.Black else Color.White.copy(alpha = 0.85f),
             modifier = Modifier.size(iconSize)
         )
     }

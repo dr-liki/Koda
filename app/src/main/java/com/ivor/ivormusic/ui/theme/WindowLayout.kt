@@ -136,7 +136,9 @@ object AppOrientation {
         context.resources.configuration.smallestScreenWidthDp >= LARGE_SCREEN_SMALLEST_WIDTH_DP
 
     fun policy(context: Context): Int =
-        if (isLargeScreen(context) || ThemePreferences.isRotateWithDevice(context)) {
+        if (com.ivor.ivormusic.util.TvUtils.isTvDevice(context)) {
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else if (isLargeScreen(context) || ThemePreferences.isRotateWithDevice(context)) {
             ActivityInfo.SCREEN_ORIENTATION_USER
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT

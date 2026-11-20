@@ -86,7 +86,7 @@ jobs:
 
       - name: Build APKs
         if: steps.check_upstream.outputs.has_update == 'true'
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Publish GitHub Release
         if: steps.check_upstream.outputs.has_update == 'true'
@@ -95,9 +95,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ steps.check_upstream.outputs.version }}
         run: |
-          cp app/build/outputs/apk/debug/app-universal-debug.apk "Koda-Universal-TV-$VERSION.apk"
-          cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk "Koda-arm64-v8a-$VERSION.apk"
-          cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk "Koda-armeabi-v7a-$VERSION.apk"
+          cp app/build/outputs/apk/release/*universal*.apk "Koda-Universal-TV-$VERSION.apk"
+          cp app/build/outputs/apk/release/*arm64-v8a*.apk "Koda-arm64-v8a-$VERSION.apk"
+          cp app/build/outputs/apk/release/*armeabi-v7a*.apk "Koda-armeabi-v7a-$VERSION.apk"
 
           if gh release view "$VERSION" --repo "$GH_REPO" >/dev/null 2>&1; then
             echo "Release $VERSION exists, updating assets..."

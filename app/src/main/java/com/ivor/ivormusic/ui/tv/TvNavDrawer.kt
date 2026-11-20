@@ -133,13 +133,13 @@ private fun TvNavItem(
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     val backgroundColor = when {
-        isFocused -> MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+        isFocused -> Color.White.copy(alpha = 0.25f)
         isSelected -> Color(0xFF1E1E2E)
         else -> Color.Transparent
     }
 
     val contentColor = when {
-        isFocused -> MaterialTheme.colorScheme.primary
+        isFocused -> Color.White
         isSelected -> Color.White
         else -> Color.LightGray
     }
@@ -154,7 +154,8 @@ private fun TvNavItem(
             .tvFocusable(
                 isFocused = isFocused,
                 shape = RoundedCornerShape(12.dp),
-                focusedScale = 1.02f
+                focusedBorderColor = Color.White,
+                focusedScale = 1.04f
             )
             .focusable(interactionSource = interactionSource)
             .clickable(

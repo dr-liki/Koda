@@ -99,7 +99,12 @@ android {
             manifestPlaceholders["appLabel"] = "Koda Debug"
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            val keystoreFile = file("${project.rootDir}/keystore/ivormusic.jks")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

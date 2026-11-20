@@ -371,8 +371,8 @@ private fun TvPlayerIconButton(
     Box(
         modifier = modifier
             .clip(CircleShape)
-            .background(if (isFocused) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.2f))
-            .tvFocusable(isFocused = isFocused, shape = CircleShape, focusedScale = 1.15f)
+            .background(if (isFocused) Color.White else Color.White.copy(alpha = 0.2f))
+            .tvFocusable(isFocused = isFocused, shape = CircleShape, focusedBorderColor = Color.White, focusedScale = 1.15f)
             .focusable(interactionSource = interactionSource)
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
@@ -380,7 +380,7 @@ private fun TvPlayerIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (isFocused) Color.White else Color.White,
+            tint = if (isFocused) Color.Black else Color.White,
             modifier = Modifier.size(iconSize)
         )
     }
