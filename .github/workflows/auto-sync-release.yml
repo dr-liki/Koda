@@ -92,20 +92,23 @@ jobs:
         if: steps.check_upstream.outputs.has_update == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           VERSION: ${{ steps.check_upstream.outputs.version }}
         run: |
           cp app/build/outputs/apk/debug/app-universal-debug.apk "Koda-Universal-TV-$VERSION.apk"
           cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk "Koda-arm64-v8a-$VERSION.apk"
           cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk "Koda-armeabi-v7a-$VERSION.apk"
 
-          if gh release view "$VERSION" >/dev/null 2>&1; then
+          if gh release view "$VERSION" --repo "$GH_REPO" >/dev/null 2>&1; then
             echo "Release $VERSION exists, updating assets..."
             gh release upload "$VERSION" \
+              --repo "$GH_REPO" \
               "Koda-Universal-TV-$VERSION.apk" \
               "Koda-arm64-v8a-$VERSION.apk" \
               "Koda-armeabi-v7a-$VERSION.apk" --clobber
           else
             gh release create "$VERSION" \
+              --repo "$GH_REPO" \
               "Koda-Universal-TV-$VERSION.apk" \
               "Koda-arm64-v8a-$VERSION.apk" \
               "Koda-armeabi-v7a-$VERSION.apk" \
