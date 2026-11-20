@@ -113,7 +113,7 @@ object TvDimensions {
     val OverscanVertical: Dp = 27.dp
     val CardSpacing: Dp = 16.dp
     val CardCornerRadius: Dp = 12.dp
-    val FocusBorderWidth: Dp = 3.5.dp
+    val FocusBorderWidth: Dp = 3.dp
     const val FocusedScale: Float = 1.08f
 }
 

@@ -204,14 +204,21 @@ private fun TvAppScaffold(
                                 )
                             },
                             colors = NavigationDrawerItemDefaults.colors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.White,
+                                inactiveContentColor = Color.White.copy(alpha = 0.85f),
                                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                                 focusedContainerColor = Color.White,
-                                focusedContentColor = Color.Black
+                                focusedContentColor = Color.Black,
+                                focusedSelectedContainerColor = Color.White,
+                                focusedSelectedContentColor = Color.Black
                             ),
                             modifier = Modifier.focusRequester(requesters.getValue(destination))
                         ) {
                             Text(
                                 text = destination.label,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else Color.White,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontWeight = FontWeight.SemiBold
@@ -227,6 +234,7 @@ private fun TvAppScaffold(
                     TvNavDestination.HOME -> {
                         TvHomeScreen(
                             homeViewModel = homeViewModel,
+                            themeViewModel = themeViewModel,
                             onPlaySong = { playSong(it) },
                             onPlayVideo = { playVideo(it) }
                         )
@@ -358,6 +366,7 @@ private fun TvAppScaffold(
         if (isVideoPlayerActive) {
             TvVideoPlayer(
                 videoPlayerViewModel = videoPlayerViewModel,
+                themeViewModel = themeViewModel,
                 onClose = { isVideoPlayerActive = false }
             )
         }

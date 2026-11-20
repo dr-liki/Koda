@@ -41,6 +41,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.zIndex
+
 /**
  * Shared TV focus animation: focused items zoom smoothly with a medium bouncy spring.
  */
@@ -61,8 +63,8 @@ fun tvFocusScale(focused: Boolean, animated: Boolean): Float {
 }
 
 /**
- * Reusable focus highlight modifier for TV interactive elements.
- * Provides scale zoom, elevation shadow, and bright white focus outline.
+ * Reusable focus highlight modifier for TV interactive elements modeled after OpenStream.
+ * Provides a 1.08x bouncy spring zoom, z-index lift, natural depth elevation, and a crisp 3dp border.
  */
 fun Modifier.tvFocusable(
     isFocused: Boolean,
@@ -87,6 +89,7 @@ fun Modifier.tvFocusable(
     }
 
     this
+        .zIndex(if (isFocused) 2f else 0f)
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -94,8 +97,8 @@ fun Modifier.tvFocusable(
         .then(
             if (isFocused) {
                 Modifier
-                    .shadow(elevation = 16.dp, shape = shape)
-                    .border(BorderStroke(3.5.dp, focusedBorderColor), shape)
+                    .shadow(elevation = 8.dp, shape = shape, clip = false)
+                    .border(BorderStroke(3.dp, focusedBorderColor), shape)
             } else {
                 Modifier
             }

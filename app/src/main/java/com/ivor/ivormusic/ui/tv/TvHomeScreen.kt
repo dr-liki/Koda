@@ -38,11 +38,12 @@ import androidx.compose.ui.unit.sp
 import com.ivor.ivormusic.data.Song
 import com.ivor.ivormusic.data.VideoItem
 import com.ivor.ivormusic.ui.home.HomeViewModel
+import com.ivor.ivormusic.ui.theme.ThemeViewModel
 import kotlinx.coroutines.delay
 
 /**
  * 10-foot Android TV Home Screen displaying full Koda features:
- * - Mode Switcher: Music Mode vs Video Mode
+ * - Mode Switcher: Music Mode vs Video Mode (persisted across navigation)
  * - In Video Mode: Recommended Videos, Trending Videos
  * - In Music Mode: Quick Picks, Mixes, Playlists, Recently Played
  * - Responsive 10-foot dimensions with 0.4 card peek affordance
@@ -50,6 +51,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun TvHomeScreen(
     homeViewModel: HomeViewModel,
+    themeViewModel: ThemeViewModel,
     onPlaySong: (Song) -> Unit,
     onPlayVideo: (VideoItem) -> Unit,
     modifier: Modifier = Modifier
@@ -61,7 +63,7 @@ fun TvHomeScreen(
     val userPlaylists by homeViewModel.userPlaylists.collectAsState()
     val songsHistory by homeViewModel.songs.collectAsState()
 
-    var isVideoMode by remember { mutableStateOf(false) }
+    val isVideoMode by themeViewModel.videoMode.collectAsState()
 
     val firstCardFocusRequester = remember { FocusRequester() }
     var hasRequestedInitialFocus by remember { mutableStateOf(false) }
@@ -97,7 +99,7 @@ fun TvHomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TvButton(
-                    onClick = { isVideoMode = false },
+                    onClick = { themeViewModel.setVideoMode(false) },
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = if (!isVideoMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = if (!isVideoMode) MaterialTheme.colorScheme.onPrimary else Color.White
@@ -112,7 +114,7 @@ fun TvHomeScreen(
                 }
 
                 TvButton(
-                    onClick = { isVideoMode = true },
+                    onClick = { themeViewModel.setVideoMode(true) },
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = if (isVideoMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = if (isVideoMode) MaterialTheme.colorScheme.onPrimary else Color.White
