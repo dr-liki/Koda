@@ -176,7 +176,7 @@ jobs:
     needs: authorize
     # Fork PRs never receive the signing secrets, so a release build there would
     # fail on the keystore decode. Debug still runs for them.
-    if: needs.authorize.outputs.allowed == 'true' && needs.authorize.outputs.is-fork-pr != 'true'
+    if: needs.authorize.outputs.allowed == 'true' && needs.authorize.outputs.is-fork-pr != 'true' && github.repository == 'Ivorisnoob/Koda'
     runs-on: ubuntu-latest
     permissions:
       actions: read

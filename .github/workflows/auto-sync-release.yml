@@ -42,13 +42,18 @@ jobs:
           echo "Upstream latest: $UPSTREAM_TAG"
           echo "Fork latest:     $FORK_TAG"
 
+          CLEAN_UPSTREAM="${UPSTREAM_TAG#v}"
+          CLEAN_FORK="${FORK_TAG#v}"
+          CLEAN_FORK="${CLEAN_FORK%-tv}"
+
           if [ "$FORCE_RELEASE" = "true" ]; then
             echo "has_update=true" >> "$GITHUB_OUTPUT"
-            TAG_TO_USE="${UPSTREAM_TAG:-v5.3}-tv"
+            TAG_TO_USE="${UPSTREAM_TAG:-5.3}-tv"
             echo "version=$TAG_TO_USE" >> "$GITHUB_OUTPUT"
-          elif [ -n "$UPSTREAM_TAG" ] && [ "$UPSTREAM_TAG" != "$FORK_TAG" ]; then
+          elif [ -n "$UPSTREAM_TAG" ] && [ "$CLEAN_UPSTREAM" != "$CLEAN_FORK" ]; then
             echo "has_update=true" >> "$GITHUB_OUTPUT"
-            echo "version=$UPSTREAM_TAG" >> "$GITHUB_OUTPUT"
+            TAG_TO_USE="${UPSTREAM_TAG}-tv"
+            echo "version=$TAG_TO_USE" >> "$GITHUB_OUTPUT"
           else
             echo "has_update=false" >> "$GITHUB_OUTPUT"
           fi
@@ -59,18 +64,21 @@ jobs:
           git remote add upstream https://github.com/Ivorisnoob/Koda.git || true
           git fetch upstream beta
           git merge upstream/beta --no-edit || (echo "Merge conflict detected! Please resolve manually." && exit 1)
-          git push origin feature/android-tv
+          git push origin feature/android-tv || true
+          git push origin feature/android-tv:beta || true
 
       - name: Set up JDK 21
         if: steps.check_upstream.outputs.has_update == 'true'
         uses: actions/setup-java@v4
         with:
-          distribution: 'microsoft'
+          distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
 
-      - name: Set up Android SDK
+      - name: Accept Android SDK Licenses
         if: steps.check_upstream.outputs.has_update == 'true'
-        uses: android-actions/setup-android@v3
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses 2>/dev/null || true
 
       - name: Grant Execute Permission for Gradlew
         if: steps.check_upstream.outputs.has_update == 'true'
@@ -86,9 +94,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.check_upstream.outputs.version }}
         run: |
-          gh release create "$VERSION" \
-            app/build/outputs/apk/debug/app-universal-debug.apk#Koda-Universal-TV-$VERSION.apk \
-            app/build/outputs/apk/debug/app-arm64-v8a-debug.apk#Koda-arm64-v8a-$VERSION.apk \
-            app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk#Koda-armeabi-v7a-$VERSION.apk \
-            --title "Koda $VERSION (with Android TV Support)" \
-            --notes "Automated release synchronized with upstream Koda $VERSION including native 10-foot Android TV support."
+          cp app/build/outputs/apk/debug/app-universal-debug.apk "Koda-Universal-TV-$VERSION.apk"
+          cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk "Koda-arm64-v8a-$VERSION.apk"
+          cp app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk "Koda-armeabi-v7a-$VERSION.apk"
+
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION exists, updating assets..."
+            gh release upload "$VERSION" \
+              "Koda-Universal-TV-$VERSION.apk" \
+              "Koda-arm64-v8a-$VERSION.apk" \
+              "Koda-armeabi-v7a-$VERSION.apk" --clobber
+          else
+            gh release create "$VERSION" \
+              "Koda-Universal-TV-$VERSION.apk" \
+              "Koda-arm64-v8a-$VERSION.apk" \
+              "Koda-armeabi-v7a-$VERSION.apk" \
+              --target feature/android-tv \
+              --title "Koda $VERSION (with Android TV Support)" \
+              --notes "Automated release synchronized with upstream Koda, featuring native 10-foot Android TV support."
+          fi
